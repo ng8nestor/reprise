@@ -16,7 +16,7 @@ The design system for reprise v0.1. Tokens live in `src/styles/tokens.css`; no c
 1. **Color is semantic, never decorative.** Every color token names a job (`--color-danger`, `--color-highlight-pink`), not a hue.
 2. **Pink means claim, their words only.** Pink marks what the author claims. Brand pink stays in the logo; buttons are ink.
 3. **Color never stands alone.** Every color-coded thing also carries a written label.
-4. **4.5:1 minimum contrast** for every text/background pair, enforced by `src/styles/tokens.test.ts`.
+4. **4.5:1 minimum contrast** for every text/background pair, enforced by `test/tokens.test.ts`.
 5. **48px tap targets** (`--tap-min`) for everything interactive.
 6. **Responsive down to 320px.** Layout caps at `--content-max` and never needs horizontal scroll.
 7. **Respect `prefers-reduced-motion`.** Both duration tokens drop to `0ms`, so any animation built on them turns off automatically.
