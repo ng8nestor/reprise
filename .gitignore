@@ -26,3 +26,9 @@ dist-ssr
 # Environment files (secrets)
 .env
 .env.local
+
+# Eval photos (copyrighted, large) and their results; keep the folders
+eval/pages/*
+!eval/pages/.gitkeep
+eval/results/*
+!eval/results/.gitkeep
