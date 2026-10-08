@@ -4,5 +4,23 @@
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/**", "shared/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["**/server/**", "**/server"],
+                "message": "server/ is server-only (it holds the Claude API client). Browser code may import shared/ only."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }

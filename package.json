@@ -9,12 +9,15 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
+    "extract": "node --env-file=.env scripts/extract-pages.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
