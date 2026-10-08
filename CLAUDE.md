@@ -8,3 +8,5 @@ Rules for all sessions on reprise.
 - Ask before adding any new dependency and explain why it's needed.
 - When there's a judgment call, explain the options instead of silently picking one.
 - Commit messages use Conventional Commits.
+- Read-only git commands (status, diff, log) are fine. Never run git
+  commands that change state (add, commit, mv, switch, push).
