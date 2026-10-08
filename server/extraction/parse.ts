@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { normalizeHyphens } from './normalize.ts'
 import { ExtractionSchema, type Extraction } from './schema.ts'
 
 export type ParseError =
@@ -50,5 +51,14 @@ export function parseExtraction(raw: string): ParseResult {
       },
     }
   }
-  return { ok: true, data: result.data }
+  return {
+    ok: true,
+    data: {
+      ...result.data,
+      highlights: result.data.highlights.map((h) => ({
+        ...h,
+        text: normalizeHyphens(h.text),
+      })),
+    },
+  }
 }

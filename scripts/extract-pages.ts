@@ -1,11 +1,18 @@
 // Runs extraction on every image in eval/pages/ and saves raw + parsed
-// results to eval/results/. Run with `npm run extract` (reads .env).
+// results to eval/results/<PROMPT_VERSION>/. Run with `npm run extract` (reads .env).
 //
 // Images are converted to JPEG and downscaled (long edge <= 1568px) with
 // macOS's built-in `sips`, so this script only runs on macOS.
 
 import { execFile } from 'node:child_process'
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
@@ -13,12 +20,14 @@ import {
   extractHighlights,
   type ExtractResult,
 } from '../server/extraction/extract.ts'
+import { PROMPT_VERSION } from '../server/extraction/prompt.ts'
 
 const run = promisify(execFile)
 
 const ROOT = path.resolve(import.meta.dirname, '..')
 const PAGES_DIR = path.join(ROOT, 'eval', 'pages')
-const RESULTS_DIR = path.join(ROOT, 'eval', 'results')
+// One folder per prompt version so runs never overwrite each other.
+const RESULTS_DIR = path.join(ROOT, 'eval', 'results', PROMPT_VERSION)
 const MAX_EDGE = 1568
 const IMAGE_EXTENSIONS = new Set([
   '.jpg',
@@ -112,6 +121,8 @@ async function main(): Promise<void> {
     console.log(`No images found in ${path.relative(ROOT, PAGES_DIR)}/`)
     return
   }
+
+  await mkdir(RESULTS_DIR, { recursive: true })
 
   let failures = 0
   for (const file of files) {

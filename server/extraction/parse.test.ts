@@ -79,6 +79,15 @@ describe('parseExtraction', () => {
     expect(result).toEqual({ ok: true, data: { highlights: [], warnings: [] } })
   })
 
+  it('joins line-break hyphenation in highlight text', () => {
+    const result = parseExtraction(
+      withHighlight({ text: 'a cap- able reader' }),
+    )
+    expect(result.ok).toBe(true)
+    if (result.ok)
+      expect(result.data.highlights[0].text).toBe('a capable reader')
+  })
+
   it('defaults missing codes, symbols, and warnings to empty lists', () => {
     const raw = JSON.stringify({
       highlights: [{ position: 1, color: 'yellow', text: 'Some words' }],

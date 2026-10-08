@@ -1,5 +1,5 @@
 // Bump PROMPT_VERSION whenever PROMPT changes so eval results stay comparable.
-export const PROMPT_VERSION = 'extract-v1'
+export const PROMPT_VERSION = 'extract-v3'
 
 export const PROMPT = `You are extracting highlighted passages from a photo of ONE page of a printed book.
 
@@ -15,6 +15,13 @@ For each highlight:
   finish cut-off sentences.
 - A highlight is one continuous run of one color, even across several lines.
   If the color changes, start a new highlight.
+- Pen marks drawn on top of highlighter (boxes, underlines, circles) do
+  not remove the highlight: if highlighter is under a boxed word, that
+  word is part of the highlight. Pen marks never create a highlight
+  either: words that are only underlined or boxed in pen, with no
+  highlighter under them, are not highlighted.
+- Any unhighlighted gap, even a single word like "and", ends the
+  highlight. Text after the gap starts a new highlight.
 - color: "pink" or "yellow"
 - position: 1 for the highlight nearest the top of the page, then 2, 3...
 
