@@ -43,6 +43,8 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
+  --border-width: 1px;
+  --focus-width: 2px;
   --tap-min: 48px;
   --content-max: 35rem;
   --shadow-card:

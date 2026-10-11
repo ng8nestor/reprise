@@ -1,0 +1,55 @@
+.login-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.field label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+}
+
+.field input {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding-inline: var(--space-3);
+  /* 16px minimum: iOS Safari zooms into inputs with smaller text */
+  font: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  /* ink-muted, not a border token: an input's edge needs 3:1 contrast */
+  border: var(--border-width) solid var(--color-ink-muted);
+  border-radius: var(--radius-sm);
+}
+
+.form-error {
+  /* Reserves one line so the button doesn't move when the message appears */
+  min-height: calc(var(--text-sm) * var(--leading-normal));
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+}
+
+.login-form .button {
+  width: 100%;
+}
+
+.account-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.account-email {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+  overflow-wrap: anywhere;
+}
