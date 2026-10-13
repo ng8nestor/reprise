@@ -5,6 +5,8 @@ Live by: Tue Oct 13, 1:50 PM
 DONE declared: Tue Oct 20
 Use-only period: Oct 21–31 (bug fixes only, no features, no new projects)
 Soccer predictor: parked until this is DONE and Oct 31 has passed
+Amended Oct 11: live date moved to Thu Oct 15 to keep all features (no cuts).
+DONE date unchanged: Tue Oct 20.
 
 ## In v0.1
 
