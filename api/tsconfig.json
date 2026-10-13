@@ -1,0 +1,14 @@
+{
+  // Only Vercel reads this file (@vercel/node uses the tsconfig.json nearest
+  // the function); `tsc -b` checks api/ through tsconfig.server.json.
+  "extends": "../tsconfig.server.json",
+  "compilerOptions": {
+    // Repeated from the base on purpose: @vercel/node forces strict: false
+    // when `module` isn't set in this file itself.
+    "module": "nodenext",
+    // Our imports end in .ts (for Node type stripping). Vercel emits .js
+    // files, so the emitted imports must say .js or the function crashes
+    // with ERR_MODULE_NOT_FOUND.
+    "rewriteRelativeImportExtensions": true
+  }
+}
