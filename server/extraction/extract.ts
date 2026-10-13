@@ -8,7 +8,7 @@ export const MODEL = 'claude-sonnet-5-5'
 
 const MAX_TOKENS = 16000
 // First attempt + one retry when the reply doesn't parse.
-const MAX_ATTEMPTS = 2
+export const MAX_ATTEMPTS = 2
 
 export interface ExtractInput {
   imageBase64: string
