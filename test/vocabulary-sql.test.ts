@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { CODES, COLORS, SYMBOLS } from '../shared/vocabulary.ts'
+import { BOOK_KINDS, CODES, COLORS, SYMBOLS } from '../shared/vocabulary.ts'
 
 // The database enforces the vocabulary with check constraints. This test
 // keeps those lists and shared/vocabulary.ts from drifting apart.
@@ -38,5 +38,9 @@ describe('migration vocabulary matches shared/vocabulary.ts', () => {
 
   it('symbols', () => {
     expect(allowedValues('highlights_symbols_allowed')).toEqual([...SYMBOLS])
+  })
+
+  it('book kinds', () => {
+    expect(allowedValues('books_kind_allowed')).toEqual([...BOOK_KINDS])
   })
 })

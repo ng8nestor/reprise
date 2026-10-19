@@ -1,0 +1,283 @@
+/* Capture flow and review. Mobile-first: one column, full-width buttons. */
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.stack > .button {
+  width: 100%;
+}
+
+.step-heading {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-tight);
+}
+
+/* Focused by script on each step so screen readers start there; it isn't
+   interactive, so no ring. */
+.step-heading:focus {
+  outline: none;
+}
+
+.form-heading {
+  margin: 0;
+  font-size: var(--text-base);
+}
+
+.context {
+  margin: 0;
+  color: var(--color-ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.label-note {
+  font-weight: var(--weight-regular);
+  color: var(--color-ink-muted);
+}
+
+/* Book list: each book is one big button */
+
+.option-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: grid;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  text-align: start;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.option-title {
+  font-weight: var(--weight-strong);
+  overflow-wrap: anywhere;
+}
+
+.option-meta {
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+/* Radio choices (book kind) */
+
+.choice-group {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choice-group legend {
+  padding: 0;
+  margin-block-end: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-min);
+  cursor: pointer;
+}
+
+.choice input {
+  width: var(--space-5);
+  height: var(--space-5);
+  margin: 0;
+  accent-color: var(--color-ink);
+}
+
+/* Photo */
+
+.photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+.photo-details summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  font-weight: var(--weight-strong);
+  cursor: pointer;
+}
+
+/* Review */
+
+.warnings ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-inline-start: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+.empty {
+  margin: 0;
+  color: var(--color-ink-muted);
+}
+
+.highlight-list {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.highlight-card[data-color='pink'] {
+  --tint: var(--color-highlight-pink);
+  --tint-ink: var(--color-highlight-pink-ink);
+}
+
+.highlight-card[data-color='yellow'] {
+  --tint: var(--color-highlight-yellow);
+  --tint-ink: var(--color-highlight-yellow-ink);
+}
+
+.highlight-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* The written meaning of the color: never tint alone */
+.highlight-tag {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--tint-ink);
+  background: var(--tint);
+  border-radius: var(--radius-pill);
+}
+
+.quote-input {
+  display: block;
+  width: 100%;
+  padding: var(--space-3);
+  font-family: var(--font-quote);
+  /* At least 16px, so iOS Safari doesn't zoom in */
+  font-size: var(--text-quote);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink);
+  background: var(--tint);
+  border: var(--border-width) solid var(--color-ink-muted);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  /* Grows with the text where supported; rows={3} elsewhere */
+  field-sizing: content;
+  min-block-size: calc(var(--text-quote) * var(--leading-relaxed) * 3);
+}
+
+.quote-input::placeholder {
+  color: var(--color-ink-muted);
+}
+
+/* Chips: toggles for color, codes and symbols */
+
+.chip-group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.chip-group legend {
+  padding: 0;
+  margin-block-end: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding-inline: var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  /* ink-muted: a control's edge needs 3:1 contrast */
+  border: var(--border-width) solid var(--color-ink-muted);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+/* On = filled ink, off = outline: the state shows without relying on hue */
+.chip[aria-pressed='true'],
+.chip:has(input:checked) {
+  color: var(--color-on-ink);
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+}
+
+.chip:has(input:focus-visible) {
+  outline: var(--focus-width) solid var(--color-ink);
+  outline-offset: var(--focus-width);
+}
+
+.chip-symbol {
+  font-size: var(--text-base);
+}
+
+.swatch {
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  border: var(--border-width) solid var(--color-ink-muted);
+  border-radius: var(--radius-pill);
+}
+
+.swatch-pink {
+  background: var(--color-highlight-pink);
+}
+
+.swatch-yellow {
+  background: var(--color-highlight-yellow);
+}
+
+.save-area {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+}
+
+.save-area .button {
+  width: 100%;
+}
