@@ -27,3 +27,17 @@ export const SYMBOLS = [
   'connects',
 ] as const
 export type SymbolName = (typeof SYMBOLS)[number]
+
+// How each symbol looks in the margin, for display.
+export const SYMBOL_GLYPHS: Record<SymbolName, string> = {
+  try: '✓',
+  doubt: '?',
+  surprise: '!',
+  disagree: '✗',
+  connects: '→',
+}
+
+// What kind of book a page comes from. It decides what each highlight color
+// means (see src/capture/highlightLabel.ts).
+export const BOOK_KINDS = ['nonfiction', 'biography'] as const
+export type BookKind = (typeof BOOK_KINDS)[number]
