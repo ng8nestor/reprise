@@ -12,11 +12,17 @@ import { PageStep } from './PageStep.tsx'
 import { blobToBase64, shrinkPhoto } from './photo.ts'
 import { PhotoStep } from './PhotoStep.tsx'
 import { FailedStep, ReadingStep } from './ReadingStep.tsx'
+import type { DraftHighlight } from './review.ts'
 import { ReviewScreen } from './ReviewScreen.tsx'
+import type { SaveFailure } from './saveError.ts'
+import { SavedStep } from './SavedStep.tsx'
+import { savePage } from './savePage.ts'
 import './capture.css'
 
 interface Photo {
-  // Object URL of the shrunk JPEG, for showing it on screen.
+  // The shrunk JPEG, uploaded to Storage on save.
+  jpeg: Blob
+  // Object URL of the same JPEG, for showing it on screen.
   url: string
   // The same JPEG as plain base64, for /api/extract.
   base64: string
@@ -47,14 +53,15 @@ type Step =
       photo: Photo
       extraction: ExtractResponse
     }
+  | { name: 'saved'; book: Book; pageNumber: number; highlightCount: number }
 
 interface CaptureFlowProps {
   onExit: () => void
 }
 
-// One page from book choice to review. Steps live in component state (no
-// router): leaving the flow drops everything, and nothing is saved yet
-// except a newly added book.
+// One page from book choice to saved. Steps live in component state (no
+// router): leaving the flow before saving drops everything except a newly
+// added book.
 export function CaptureFlow({ onExit }: CaptureFlowProps) {
   const [step, setStep] = useState<Step>({ name: 'book' })
   const requestRef = useRef<AbortController | null>(null)
@@ -119,7 +126,11 @@ export function CaptureFlow({ onExit }: CaptureFlowProps) {
     let photo: Photo
     try {
       const jpeg = await shrinkPhoto(file)
-      photo = { url: keepPhotoUrl(jpeg), base64: await blobToBase64(jpeg) }
+      photo = {
+        jpeg,
+        url: keepPhotoUrl(jpeg),
+        base64: await blobToBase64(jpeg),
+      }
     } catch {
       setStep({
         name: 'photo',
@@ -131,6 +142,30 @@ export function CaptureFlow({ onExit }: CaptureFlowProps) {
       return
     }
     await extract(book, pageNumber, photo)
+  }
+
+  async function save(
+    book: Book,
+    pageNumber: number,
+    photo: Photo,
+    extraction: ExtractResponse,
+    highlights: DraftHighlight[],
+  ): Promise<SaveFailure | null> {
+    const outcome = await savePage({
+      bookId: book.id,
+      pageNumber,
+      photo: photo.jpeg,
+      extraction,
+      highlights,
+    })
+    if (!outcome.ok) return outcome.failure
+    setStep({
+      name: 'saved',
+      book,
+      pageNumber,
+      highlightCount: highlights.length,
+    })
+    return null
   }
 
   function toPhotoStep(book: Book, pageNumber: number) {
@@ -197,8 +232,34 @@ export function CaptureFlow({ onExit }: CaptureFlowProps) {
           pageNumber={step.pageNumber}
           photoUrl={step.photo.url}
           extraction={step.extraction}
+          onSave={(highlights) =>
+            save(
+              step.book,
+              step.pageNumber,
+              step.photo,
+              step.extraction,
+              highlights,
+            )
+          }
           onRetake={() => toPhotoStep(step.book, step.pageNumber)}
           onDiscard={onExit}
+        />
+      )
+    case 'saved':
+      return (
+        <SavedStep
+          book={step.book}
+          pageNumber={step.pageNumber}
+          highlightCount={step.highlightCount}
+          // Same book, next page prefilled; PageStep lets me change it.
+          onNextPage={() =>
+            setStep({
+              name: 'page',
+              book: step.book,
+              pageNumber: step.pageNumber + 1,
+            })
+          }
+          onDone={onExit}
         />
       )
   }

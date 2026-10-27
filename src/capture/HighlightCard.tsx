@@ -26,6 +26,8 @@ interface HighlightCardProps {
   highlight: DraftHighlight
   kind: BookKind
   focusOnMount: boolean
+  // True when a save was blocked because this card has no text.
+  blank: boolean
   dispatch: Dispatch<ReviewAction>
   onDelete: () => void
 }
@@ -34,11 +36,13 @@ export function HighlightCard({
   highlight,
   kind,
   focusOnMount,
+  blank,
   dispatch,
   onDelete,
 }: HighlightCardProps) {
   const id = useId()
   const textId = `${id}-text`
+  const errorId = `${id}-error`
   const { key } = highlight
 
   return (
@@ -60,7 +64,14 @@ export function HighlightCard({
         onChange={(event) =>
           dispatch({ type: 'editText', key, text: event.target.value })
         }
+        aria-invalid={blank ? true : undefined}
+        aria-describedby={blank ? errorId : undefined}
       />
+      {blank && (
+        <p id={errorId} className="form-error">
+          This highlight is empty.
+        </p>
+      )}
 
       <fieldset className="chip-group">
         <legend>Color</legend>
