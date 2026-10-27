@@ -162,7 +162,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      save_page: {
+        Args: {
+          book_id: string
+          due_on: string
+          highlights: Json
+          page_id: string
+          page_number: number
+          photo_path: string
+          prompt_version: string
+          raw_extraction: Json
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

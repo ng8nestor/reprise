@@ -1,8 +1,15 @@
-import { useId, useReducer, useState } from 'react'
+import { useEffect, useId, useReducer, useRef, useState } from 'react'
 import type { Book } from './books.ts'
 import type { ExtractResponse } from './extractClient.ts'
 import { HighlightCard } from './HighlightCard.tsx'
-import { initReview, nextHighlightKey, reviewReducer } from './review.ts'
+import {
+  initReview,
+  nextHighlightKey,
+  reviewReducer,
+  type DraftHighlight,
+} from './review.ts'
+import { blankHighlightKeys, blankHighlightsMessage } from './save.ts'
+import { saveErrorMessage, type SaveFailure } from './saveError.ts'
 import { useFocusOnMount } from './useFocusOnMount.ts'
 
 interface ReviewScreenProps {
@@ -10,6 +17,9 @@ interface ReviewScreenProps {
   pageNumber: number
   photoUrl: string
   extraction: ExtractResponse
+  // Resolves to null once saved (the flow then moves on and this screen
+  // unmounts), or to why it failed (this screen stays, edits intact).
+  onSave: (highlights: DraftHighlight[]) => Promise<SaveFailure | null>
   onRetake: () => void
   onDiscard: () => void
 }
@@ -19,11 +29,13 @@ export function ReviewScreen({
   pageNumber,
   photoUrl,
   extraction,
+  onSave,
   onRetake,
   onDiscard,
 }: ReviewScreenProps) {
   const headingRef = useFocusOnMount<HTMLHeadingElement>()
-  const saveNoteId = useId()
+  const listRef = useRef<HTMLOListElement>(null)
+  const saveMessageId = useId()
   const [state, dispatch] = useReducer(
     reviewReducer,
     extraction.highlights,
@@ -32,7 +44,33 @@ export function ReviewScreen({
   // The card added last gets focus when it mounts.
   const [focusKey, setFocusKey] = useState<string | null>(null)
 
+  // A ref, not just state: two taps in a row must never start two saves,
+  // even before React re-renders.
+  const savingRef = useRef(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  // Empty cards are only flagged after a save attempt, then live: the
+  // message goes away as soon as each card gets text or is deleted.
+  const [checkBlank, setCheckBlank] = useState(false)
+  // Bumped on each blocked save, to move focus to the first empty card.
+  const [blankAttempt, setBlankAttempt] = useState(0)
+
   const count = state.highlights.length
+  const blankKeys = checkBlank ? blankHighlightKeys(state.highlights) : []
+  const blankPositions = state.highlights
+    .filter((highlight) => blankKeys.includes(highlight.key))
+    .map((highlight) => highlight.position)
+  const saveMessage =
+    blankPositions.length > 0
+      ? blankHighlightsMessage(blankPositions)
+      : saveError
+
+  useEffect(() => {
+    if (blankAttempt === 0) return
+    listRef.current
+      ?.querySelector<HTMLElement>('textarea[aria-invalid="true"]')
+      ?.focus()
+  }, [blankAttempt])
 
   function handleAdd() {
     setFocusKey(nextHighlightKey(state))
@@ -45,8 +83,29 @@ export function ReviewScreen({
     headingRef.current?.focus()
   }
 
+  async function handleSave() {
+    if (savingRef.current) return
+
+    const highlights = state.highlights
+    if (blankHighlightKeys(highlights).length > 0) {
+      setSaveError(null)
+      setCheckBlank(true)
+      setBlankAttempt((attempt) => attempt + 1)
+      return
+    }
+
+    savingRef.current = true
+    setSaving(true)
+    setSaveError(null)
+    const failure = await onSave(highlights)
+    if (failure === null) return
+    savingRef.current = false
+    setSaving(false)
+    setSaveError(saveErrorMessage(failure, pageNumber))
+  }
+
   return (
-    <section className="stack">
+    <section className="stack" aria-busy={saving}>
       <h2 ref={headingRef} tabIndex={-1} className="step-heading">
         Review highlights
       </h2>
@@ -75,13 +134,14 @@ export function ReviewScreen({
           No highlights found on this page. If there are some, add them below.
         </p>
       ) : (
-        <ol className="highlight-list">
+        <ol ref={listRef} className="highlight-list">
           {state.highlights.map((highlight) => (
             <HighlightCard
               key={highlight.key}
               highlight={highlight}
               kind={book.kind}
               focusOnMount={highlight.key === focusKey}
+              blank={blankKeys.includes(highlight.key)}
               dispatch={dispatch}
               onDelete={() => handleDelete(highlight.key)}
             />
@@ -92,28 +152,36 @@ export function ReviewScreen({
       <button
         type="button"
         className="button button-secondary"
+        disabled={saving}
         onClick={handleAdd}
       >
         Add a highlight
       </button>
 
       <div className="save-area">
+        {/* aria-disabled instead of disabled: a disabled button drops
+            keyboard focus to <body>; this keeps focus on it while saving,
+            and savingRef ignores the extra taps. */}
         <button
           type="button"
           className="button button-primary"
-          disabled
-          aria-describedby={saveNoteId}
+          aria-disabled={saving}
+          aria-describedby={saveMessage ? saveMessageId : undefined}
+          onClick={() => void handleSave()}
         >
-          Save page
+          {saving ? 'Saving…' : 'Save page'}
         </button>
-        <p id={saveNoteId} className="muted">
-          Saving comes next.
+        {/* Always rendered so screen readers announce the text when it
+            appears. */}
+        <p id={saveMessageId} className="form-error" role="alert">
+          {saveMessage}
         </p>
       </div>
 
       <button
         type="button"
         className="button button-secondary"
+        disabled={saving}
         onClick={onRetake}
       >
         Retake photo
@@ -121,6 +189,7 @@ export function ReviewScreen({
       <button
         type="button"
         className="button button-secondary"
+        disabled={saving}
         onClick={onDiscard}
       >
         Discard page

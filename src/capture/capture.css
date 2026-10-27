@@ -281,3 +281,9 @@
 .save-area .button {
   width: 100%;
 }
+
+/* An empty card after a blocked save: the edge turns danger, and the
+   written message below says why (color never stands alone). */
+.quote-input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
