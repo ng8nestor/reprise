@@ -131,6 +131,15 @@ body {
   font-size: var(--text-quote);
 }
 
+/* A way out that should be easy to find but never compete with the main
+   action: text only, still a 48px target. */
+.button-quiet {
+  background: transparent;
+  color: var(--color-ink-muted);
+  text-decoration: underline;
+  text-underline-offset: var(--space-1);
+}
+
 .button-danger {
   background: transparent;
   border-color: var(--color-border-strong);

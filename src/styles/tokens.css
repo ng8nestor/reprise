@@ -46,6 +46,8 @@
   --border-width: 1px;
   --focus-width: 2px;
   --tap-min: 48px;
+  /* Room a phone keeps for its home indicator; 0 where the browser says none */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --content-max: 35rem;
   --shadow-card:
     0 1px 2px rgb(31 28 25 / 0.04), 0 4px 16px rgb(31 28 25 / 0.04);

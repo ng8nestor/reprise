@@ -1,8 +1,8 @@
 import { useEffect, useId, useRef, useState, type MouseEvent } from 'react'
-import { SYMBOL_GLYPHS, SYMBOL_NAMES } from '../../shared/vocabulary.ts'
 import { highlightLabel } from '../capture/highlightLabel.ts'
 import { gradeErrorMessage } from '../capture/saveError.ts'
 import { useFocusOnMount } from '../capture/useFocusOnMount.ts'
+import { MarkList } from '../highlights/MarkList.tsx'
 import { fetchReviewQueue, saveGrade } from './queue.ts'
 import { progressLabel, type ReviewCard } from './reviewCard.ts'
 import type { Grade } from './scheduler.ts'
@@ -209,8 +209,6 @@ function CardSession({ cards, index, onNext, onExit }: CardSessionProps) {
 }
 
 function CardView({ card }: { card: ReviewCard }) {
-  const hasMarks = card.codes.length > 0 || card.symbols.length > 0
-
   return (
     <article className="card highlight-card stack" data-color={card.color}>
       <p className="review-card-head">
@@ -226,21 +224,7 @@ function CardView({ card }: { card: ReviewCard }) {
       <p className="context">
         {card.bookTitle} · p. {card.pageNumber}
       </p>
-      {hasMarks && (
-        <ul className="mark-list" aria-label="Codes and symbols">
-          {card.codes.map((code) => (
-            <li key={code} className="mark">
-              {code}
-            </li>
-          ))}
-          {card.symbols.map((symbol) => (
-            <li key={symbol} className="mark">
-              <span aria-hidden="true">{SYMBOL_GLYPHS[symbol]}</span>
-              {SYMBOL_NAMES[symbol]}
-            </li>
-          ))}
-        </ul>
-      )}
+      <MarkList codes={card.codes} symbols={card.symbols} />
     </article>
   )
 }

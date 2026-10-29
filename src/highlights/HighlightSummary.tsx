@@ -1,51 +1,64 @@
-import { SYMBOL_GLYPHS, SYMBOL_NAMES } from '../../shared/vocabulary.ts'
+import type { ReactNode } from 'react'
 import { highlightLabel } from '../capture/highlightLabel.ts'
 import type { HighlightSummaryData } from './highlightSummary.ts'
+import { MarkList } from './MarkList.tsx'
 import '../capture/capture.css'
-import '../review/review.css'
 import './highlightSummary.css'
 
 interface HighlightSummaryProps {
   highlight: HighlightSummaryData
+  // Where the highlight is. Off where the screen already says it, like the
+  // capture review, so each card stays short.
+  showSource?: boolean
+  // Its place on the page, shown next to the label ("Highlight 3").
+  position?: number
+  // A control at the end of the top row, like the review screen's Edit.
+  action?: ReactNode
 }
 
 // A compact, read-only highlight: the quote on its tint, what the color
 // means for this book, where it is, and the codes and symbols next to it.
 // Static on purpose: the highlighter sweep belongs to the review card.
-export function HighlightSummary({ highlight }: HighlightSummaryProps) {
-  const hasMarks = highlight.codes.length > 0 || highlight.symbols.length > 0
+export function HighlightSummary({
+  highlight,
+  showSource = true,
+  position,
+  action,
+}: HighlightSummaryProps) {
+  const isEmpty = highlight.text.trim() === ''
 
   return (
     <article
       className="card highlight-card highlight-summary"
       data-color={highlight.color}
+      aria-label={position === undefined ? undefined : `Highlight ${position}`}
     >
-      <p className="summary-head">
-        <span className="highlight-tag">
-          {highlightLabel(highlight.kind, highlight.color)}
-        </span>
-      </p>
+      <div className="summary-head">
+        <p className="summary-meta">
+          <span className="highlight-tag">
+            {highlightLabel(highlight.kind, highlight.color)}
+          </span>
+          {position !== undefined && (
+            <span className="muted">Highlight {position}</span>
+          )}
+        </p>
+        {action}
+      </div>
       <blockquote className="summary-quote">
-        <p>{highlight.text}</p>
+        <p>
+          {isEmpty ? (
+            <span className="summary-empty">No text yet</span>
+          ) : (
+            highlight.text
+          )}
+        </p>
       </blockquote>
-      <p className="context">
-        {highlight.bookTitle} · p. {highlight.pageNumber}
-      </p>
-      {hasMarks && (
-        <ul className="mark-list" aria-label="Codes and symbols">
-          {highlight.codes.map((code) => (
-            <li key={code} className="mark">
-              {code}
-            </li>
-          ))}
-          {highlight.symbols.map((symbol) => (
-            <li key={symbol} className="mark">
-              <span aria-hidden="true">{SYMBOL_GLYPHS[symbol]}</span>
-              {SYMBOL_NAMES[symbol]}
-            </li>
-          ))}
-        </ul>
+      {showSource && (
+        <p className="context">
+          {highlight.bookTitle} · p. {highlight.pageNumber}
+        </p>
       )}
+      <MarkList codes={highlight.codes} symbols={highlight.symbols} />
     </article>
   )
 }

@@ -16,19 +16,22 @@ const COLOR_NAMES: Record<Color, string> = { pink: 'Pink', yellow: 'Yellow' }
 interface HighlightCardProps {
   highlight: DraftHighlight
   kind: BookKind
-  focusOnMount: boolean
   // True when a save was blocked because this card has no text.
   blank: boolean
   dispatch: Dispatch<ReviewAction>
+  onDone: () => void
   onDelete: () => void
 }
 
+// The full controls for one highlight, shown while it's open for editing.
+// The review screen moves focus by the data-focus markers: "panel" for the
+// card itself (when it opens), "text" for the textarea.
 export function HighlightCard({
   highlight,
   kind,
-  focusOnMount,
   blank,
   dispatch,
+  onDone,
   onDelete,
 }: HighlightCardProps) {
   const id = useId()
@@ -37,7 +40,13 @@ export function HighlightCard({
   const { key } = highlight
 
   return (
-    <li className="card highlight-card stack" data-color={highlight.color}>
+    <article
+      className="card highlight-card stack"
+      data-color={highlight.color}
+      data-focus="panel"
+      tabIndex={-1}
+      aria-label={`Highlight ${highlight.position}`}
+    >
       <label htmlFor={textId} className="highlight-card-head">
         <span className="highlight-tag">
           {highlightLabel(kind, highlight.color)}
@@ -48,9 +57,8 @@ export function HighlightCard({
         id={textId}
         className="quote-input"
         rows={3}
+        data-focus="text"
         placeholder="Type the highlighted text"
-        // Only true for a card just added by hand.
-        autoFocus={focusOnMount}
         value={highlight.text}
         onChange={(event) =>
           dispatch({ type: 'editText', key, text: event.target.value })
@@ -119,9 +127,24 @@ export function HighlightCard({
         </div>
       </fieldset>
 
-      <button type="button" className="button button-danger" onClick={onDelete}>
-        Delete highlight
-      </button>
-    </li>
+      <div className="card-actions">
+        <button
+          type="button"
+          className="button button-danger"
+          aria-label={`Delete highlight ${highlight.position}`}
+          onClick={onDelete}
+        >
+          Delete
+        </button>
+        <button
+          type="button"
+          className="button button-secondary"
+          aria-label={`Done editing highlight ${highlight.position}`}
+          onClick={onDone}
+        >
+          Done
+        </button>
+      </div>
+    </article>
   )
 }
