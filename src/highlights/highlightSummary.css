@@ -1,0 +1,30 @@
+/* Compact read-only highlight. Shares .card, .highlight-card (tint
+   variables), .highlight-tag, .context, .mark-list and .mark with
+   index.css, capture.css and review.css. */
+
+.highlight-summary {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.summary-head {
+  margin: 0;
+}
+
+.summary-quote {
+  margin: 0;
+  padding: var(--space-3);
+  font-family: var(--font-quote);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink);
+  background: var(--tint);
+  border-radius: var(--radius-sm);
+  overflow-wrap: anywhere;
+}
+
+.summary-quote p {
+  margin: 0;
+}

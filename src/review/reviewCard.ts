@@ -43,7 +43,7 @@ export interface ReviewRow {
   } | null
 }
 
-function isOneOf<T extends string>(
+export function isOneOf<T extends string>(
   list: readonly T[],
   value: string,
 ): value is T {
