@@ -137,6 +137,17 @@ body {
   color: var(--color-danger);
 }
 
+/* Home: the focal action first, anything secondary below it */
+
+.home {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.home > .button {
+  width: 100%;
+}
+
 /* Shared text styles */
 
 .muted {

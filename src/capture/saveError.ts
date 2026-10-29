@@ -32,7 +32,13 @@ export function saveErrorMessage(
   return COULD_NOT_SAVE
 }
 
-// The parts of a supabase.rpc() result that say how it failed. supabase-js
+// Saving a review grade (an update of box and due_on) can't hit a unique
+// key, so only "offline" gets its own message.
+export function gradeErrorMessage(failure: SaveFailure): string {
+  return failure.kind === 'network' ? SERVER_UNREACHABLE : COULD_NOT_SAVE
+}
+
+// The parts of a supabase.rpc() or .update() result that say how it failed. supabase-js
 // reports a fetch that got no response as status 0 with an empty code.
 export interface RpcErrorInfo {
   status: number

@@ -30,7 +30,7 @@ The one animation in the product.
 - **What:** the highlight tint draws left to right behind the quote, like a highlighter pen passing over the text.
 - **Timing:** `--duration-sweep` (600ms) with `--ease-out`.
 - **Reduced motion:** the duration token is `0ms`, so the highlight appears instantly.
-- **Status:** specified here, not implemented yet.
+- **Status:** implemented in `src/review/review.css` (`.review-quote-text`).
 
 ## Decisions
 

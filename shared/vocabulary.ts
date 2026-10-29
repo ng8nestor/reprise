@@ -37,6 +37,15 @@ export const SYMBOL_GLYPHS: Record<SymbolName, string> = {
   connects: '→',
 }
 
+// Spoken names for the symbols; the glyph alone reads badly.
+export const SYMBOL_NAMES: Record<SymbolName, string> = {
+  try: 'Try',
+  doubt: 'Doubt',
+  surprise: 'Surprise',
+  disagree: 'Disagree',
+  connects: 'Connects',
+}
+
 // What kind of book a page comes from. It decides what each highlight color
 // means (see src/capture/highlightLabel.ts).
 export const BOOK_KINDS = ['nonfiction', 'biography'] as const
