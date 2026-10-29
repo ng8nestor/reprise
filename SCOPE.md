@@ -1,10 +1,10 @@
 # SCOPE.md — v0.1 contract
 
 Signed: Oct 6, 2026
-Live by: Tue Oct 13, 1:50 PM
-DONE declared: Tue Oct 20
-Use-only period: Oct 21–31 (bug fixes only, no features, no new projects)
-Soccer predictor: parked until this is DONE and Oct 31 has passed
+Live: reached Oct 29 (capture, save, daily review)
+DONE declared: Sat Nov 7
+Use-only period: after DONE (Sat Nov 7), bug fixes only, no new features or projects.
+Soccer predictor: parked until reprise is DONE (Nov 7)
 Amended Oct 11: live date moved to Thu Oct 15 to keep all features (no cuts).
 DONE date unchanged: Tue Oct 20.
 Amended Oct 27: DONE is Sat Nov 7 (resume Nov 8, applications start Nov 9).

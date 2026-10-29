@@ -5,6 +5,7 @@ import {
   blankHighlightKeys,
   blankHighlightsMessage,
   photoPath,
+  saveButtonLabel,
   savedHeading,
   savePageArgs,
   toSavedHighlights,
@@ -135,6 +136,17 @@ describe('savePageArgs', () => {
         },
       ],
     })
+  })
+})
+
+describe('saveButtonLabel', () => {
+  it.each([
+    [0, 'Save page'],
+    [1, 'Save 1 highlight'],
+    [2, 'Save 2 highlights'],
+    [12, 'Save 12 highlights'],
+  ])('%i → %s', (count, label) => {
+    expect(saveButtonLabel(count)).toBe(label)
   })
 })
 

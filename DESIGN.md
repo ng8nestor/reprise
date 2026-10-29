@@ -34,8 +34,11 @@ The one animation in the product.
 
 ## Decisions
 
-| Decision            | Chosen            | Alternative       | Revisit when                            |
-| ------------------- | ----------------- | ----------------- | --------------------------------------- |
-| Main button color   | Ink               | Brand pink        | Never while pink means "claim"          |
-| Quote font          | System serif      | Literata web font | Quotes look wrong on a non-Apple device |
-| Signature animation | Highlighter sweep | Card toss         | Sweep feels slow in daily use           |
+| Decision             | Chosen                                       | Alternative            | Revisit when                                     |
+| -------------------- | -------------------------------------------- | ---------------------- | ------------------------------------------------ |
+| Main button color    | Ink                                          | Brand pink             | Never while pink means "claim"                   |
+| Quote font           | System serif                                 | Literata web font      | Quotes look wrong on a non-Apple device          |
+| Signature animation  | Highlighter sweep                            | Card toss              | Sweep feels slow in daily use                    |
+| Capture review cards | Collapsed summary, one open at a time        | Every card open        | I edit most cards, so Edit is a tap too many     |
+| Save button          | Sticky bar at the bottom, count on the label | Inline after the cards | The bar covers something I need to tap           |
+| Retake / Discard     | Quiet text buttons above Save                | Full outline buttons   | They get tapped by mistake, or I can't find them |

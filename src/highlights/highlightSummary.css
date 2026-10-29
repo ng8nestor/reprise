@@ -1,6 +1,7 @@
 /* Compact read-only highlight. Shares .card, .highlight-card (tint
-   variables), .highlight-tag, .context, .mark-list and .mark with
-   index.css, capture.css and review.css. */
+   variables), .highlight-tag, .context and .muted with index.css and
+   capture.css. Also holds the codes and symbols list (.mark-list), which
+   the daily review card uses too. */
 
 .highlight-summary {
   display: grid;
@@ -9,7 +10,21 @@
   padding: var(--space-4);
 }
 
+/* Label on the left, an optional control on the right. The row is as tall
+   as that control (48px) when there is one. */
 .summary-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
   margin: 0;
 }
 
@@ -27,4 +42,34 @@
 
 .summary-quote p {
   margin: 0;
+}
+
+/* A card with no text yet (review screen only) */
+.summary-empty {
+  font-family: var(--font-ui);
+  font-size: var(--text-sm);
+  color: var(--color-ink-muted);
+}
+
+/* Codes and symbols written next to the highlight. Read-only, so they're
+   quiet outlines, not the 48px chips used for editing. */
+.mark-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--color-ink-muted);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
 }

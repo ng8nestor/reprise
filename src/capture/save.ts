@@ -82,6 +82,12 @@ export function savePageArgs(input: SavePageInput): SavePageArgs {
   }
 }
 
+// Label of the save button, so the count is on it before I tap.
+export function saveButtonLabel(count: number): string {
+  if (count === 0) return 'Save page'
+  return count === 1 ? 'Save 1 highlight' : `Save ${count} highlights`
+}
+
 // Heading of the screen after saving.
 export function savedHeading(count: number): string {
   if (count === 0) return 'Page saved'

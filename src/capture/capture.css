@@ -272,14 +272,61 @@
   background: var(--color-highlight-yellow);
 }
 
-.save-area {
+/* Delete and Done at the end of an open card. Done on the right, where the
+   thumb ends up. */
+.card-actions {
   display: grid;
-  gap: var(--space-2);
-  justify-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
 }
 
-.save-area .button {
+/* The note under a collapsed card that has no text */
+.highlight-list .form-error {
+  margin-block-start: var(--space-2);
+}
+
+/* Retake and Discard: reachable, but quiet next to Save */
+.quiet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-5);
+}
+
+/* Save sticks to the bottom of the screen while the cards scroll, and rests
+   at the end of the page. It reaches past the page's side padding
+   (--space-4, index.css) and its bottom padding (--space-6) so the bar is
+   edge to edge and flush with the bottom. The bottom inset keeps the button
+   clear of a home indicator where the browser exposes one. */
+.save-bar {
+  position: sticky;
+  bottom: 0;
+  margin-inline: calc(-1 * var(--space-4));
+  margin-block-end: calc(-1 * var(--space-6));
+  padding: var(--space-3) var(--space-4)
+    calc(var(--space-3) + var(--safe-bottom));
+  background: var(--color-bg);
+  border-block-start: var(--border-width) solid var(--color-border);
+}
+
+.save-bar .button {
   width: 100%;
+}
+
+/* Moving focus scrolls the target into view; keep it clear of the Save bar
+   (about 73px tall). */
+.highlight-list [data-focus] {
+  scroll-margin-block-end: calc(var(--tap-min) + var(--space-6));
+}
+
+/* No reserved line here (unlike other forms): the bar grows upward when a
+   message appears, and covers nothing because it sits in the page flow. */
+.save-bar .form-error {
+  min-height: 0;
+}
+
+.save-bar .form-error:not(:empty) {
+  margin-block-end: var(--space-2);
 }
 
 /* An empty card after a blocked save: the edge turns danger, and the
