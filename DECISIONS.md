@@ -19,3 +19,5 @@
 | Photo to /api/extract  | Sent in the request body                     | Upload to Storage first, send the path               | Re-running extraction on stored photos (v0.2)            |
 | Migration deploys      | Manual `supabase db push` after reading      | Supabase GitHub integration (auto-deploy, branching) | CI is set up in polish week                              |
 | Vercel TS compile      | api/tsconfig.json rewrites imports .ts → .js | Vercel default: ships .ts imports, crashes on load   | @vercel/node rewrites .ts imports to .js itself          |
+| Supabase keep-alive    | Daily ping of a constant-returning function  | Query a real table (needs anon grants on tables)     | Supabase changes what counts as activity, or I go Pro    |
+| Audit in CI            | Fails CI on high+ advisories                 | Dependabot alerts only                               | Audit blocks merges over unfixable advisories            |

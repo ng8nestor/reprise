@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# The workflow only reads the repository.
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # No real secrets anywhere in this job. The values below are fake: the
+    # build only needs the variables to exist, and the tests never make a
+    # network call.
+    env:
+      VITE_SUPABASE_URL: https://example.invalid
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_fake_for_ci
+      ANTHROPIC_API_KEY: sk-ant-fake-for-ci
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+      - run: npm run lint
+      - run: npm run format:check
+      # Fails on high or critical advisories in any dependency, dev included.
+      - run: npm audit --audit-level=high
