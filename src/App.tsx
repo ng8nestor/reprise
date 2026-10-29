@@ -4,21 +4,24 @@ import { LoginForm } from './auth/LoginForm.tsx'
 import { useAuth } from './auth/useAuth.ts'
 import { CaptureFlow } from './capture/CaptureFlow.tsx'
 import { Home } from './Home.tsx'
+import { DailyReview } from './review/DailyReview.tsx'
 
-type Screen = 'home' | 'returnedHome' | 'capture'
+type Screen = 'home' | 'returnedHome' | 'capture' | 'review'
 
 // Lives only while signed in, so signing out (or a session expiring
 // mid-capture) always starts the next session from home.
 function SignedIn() {
   const [screen, setScreen] = useState<Screen>('home')
+  const toHome = () => setScreen('returnedHome')
 
   return (
     <main>
-      {screen === 'capture' ? (
-        <CaptureFlow onExit={() => setScreen('returnedHome')} />
-      ) : (
+      {screen === 'capture' && <CaptureFlow onExit={toHome} />}
+      {screen === 'review' && <DailyReview onExit={toHome} />}
+      {(screen === 'home' || screen === 'returnedHome') && (
         <Home
           onCapture={() => setScreen('capture')}
+          onReview={() => setScreen('review')}
           focusOnMount={screen === 'returnedHome'}
         />
       )}

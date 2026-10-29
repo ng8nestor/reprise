@@ -3,24 +3,15 @@ import {
   CODES,
   COLORS,
   SYMBOL_GLYPHS,
+  SYMBOL_NAMES,
   SYMBOLS,
   type BookKind,
   type Color,
-  type SymbolName,
 } from '../../shared/vocabulary.ts'
 import { highlightLabel } from './highlightLabel.ts'
 import type { DraftHighlight, ReviewAction } from './review.ts'
 
 const COLOR_NAMES: Record<Color, string> = { pink: 'Pink', yellow: 'Yellow' }
-
-// Spoken names for the margin symbols; the glyph alone reads badly.
-const SYMBOL_NAMES: Record<SymbolName, string> = {
-  try: 'Try',
-  doubt: 'Doubt',
-  surprise: 'Surprise',
-  disagree: 'Disagree',
-  connects: 'Connects',
-}
 
 interface HighlightCardProps {
   highlight: DraftHighlight

@@ -1,0 +1,74 @@
+/* Daily review. Shares .stack, .step-heading, .context, .highlight-card
+   (tint variables) and .highlight-tag with capture.css. */
+
+.review-card-head {
+  margin: 0;
+}
+
+.review-quote {
+  margin: 0;
+  font-family: var(--font-quote);
+  font-size: var(--text-quote);
+  line-height: var(--leading-relaxed);
+  color: var(--color-ink);
+  overflow-wrap: anywhere;
+}
+
+.review-quote p {
+  margin: 0;
+}
+
+/* Signature animation (DESIGN.md): the highlighter sweep. The tint is a
+   background image on the inline text, and an inline box's background is
+   laid out as one long strip across all its lines, so growing it from 0% to
+   100% wide draws it left to right, line by line, like a pen. The resting
+   state is fully highlighted; under prefers-reduced-motion the duration
+   token is 0ms, so it appears at once. */
+.review-quote-text {
+  padding-inline: var(--space-1);
+  background-image: linear-gradient(var(--tint), var(--tint));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  animation: highlighter-sweep var(--duration-sweep) var(--ease-out) both;
+}
+
+@keyframes highlighter-sweep {
+  from {
+    background-size: 0% 100%;
+  }
+}
+
+/* Codes and symbols written next to the highlight. Read-only, so they're
+   quiet outlines, not the 48px chips used for editing. */
+.mark-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--color-ink-muted);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.grade-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.grade-buttons .button {
+  width: 100%;
+  /* No double-tap zoom on iOS, so two quick taps stay two taps */
+  touch-action: manipulation;
+}

@@ -2,12 +2,30 @@ import { describe, expect, it } from 'vitest'
 import {
   alreadyCapturedMessage,
   COULD_NOT_SAVE,
+  gradeErrorMessage,
   rpcFailure,
   saveErrorMessage,
   shouldDeletePhoto,
   uploadFailure,
   type SaveFailure,
 } from './saveError.ts'
+
+describe('gradeErrorMessage', () => {
+  it('says it could not connect after a network failure', () => {
+    expect(gradeErrorMessage({ kind: 'network' })).toBe(
+      "Couldn't connect. Try again.",
+    )
+  })
+
+  it.each<SaveFailure>([
+    { kind: 'database', code: '42501' },
+    // Never the capture-only "already captured page" message.
+    { kind: 'database', code: '23505' },
+    { kind: 'other' },
+  ])('uses the generic message for $kind failures', (failure) => {
+    expect(gradeErrorMessage(failure)).toBe("Couldn't save. Try again.")
+  })
+})
 
 describe('saveErrorMessage', () => {
   it('names the page when the book already has it (23505)', () => {
