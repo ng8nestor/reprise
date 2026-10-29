@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { AccountBar } from './auth/AccountBar.tsx'
 import { LoginForm } from './auth/LoginForm.tsx'
 import { useAuth } from './auth/useAuth.ts'
+import { BrowseHighlights } from './browse/BrowseHighlights.tsx'
 import { CaptureFlow } from './capture/CaptureFlow.tsx'
 import { Home } from './Home.tsx'
 import { DailyReview } from './review/DailyReview.tsx'
 
-type Screen = 'home' | 'returnedHome' | 'capture' | 'review'
+type Screen = 'home' | 'returnedHome' | 'capture' | 'review' | 'browse'
 
 // Lives only while signed in, so signing out (or a session expiring
 // mid-capture) always starts the next session from home.
@@ -18,10 +19,17 @@ function SignedIn() {
     <main>
       {screen === 'capture' && <CaptureFlow onExit={toHome} />}
       {screen === 'review' && <DailyReview onExit={toHome} />}
+      {screen === 'browse' && (
+        <BrowseHighlights
+          onCapture={() => setScreen('capture')}
+          onExit={toHome}
+        />
+      )}
       {(screen === 'home' || screen === 'returnedHome') && (
         <Home
           onCapture={() => setScreen('capture')}
           onReview={() => setScreen('review')}
+          onBrowse={() => setScreen('browse')}
           focusOnMount={screen === 'returnedHome'}
         />
       )}

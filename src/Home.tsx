@@ -13,12 +13,18 @@ type DueState =
 interface HomeProps {
   onCapture: () => void
   onReview: () => void
+  onBrowse: () => void
   // True when coming back from another screen, so focus lands here
   // instead of on <body>. False on first load, so the page reads from the top.
   focusOnMount: boolean
 }
 
-export function Home({ onCapture, onReview, focusOnMount }: HomeProps) {
+export function Home({
+  onCapture,
+  onReview,
+  onBrowse,
+  focusOnMount,
+}: HomeProps) {
   const focalRef = useRef<HTMLButtonElement>(null)
   const [due, setDue] = useState<DueState>({ status: 'loading' })
 
@@ -89,6 +95,13 @@ export function Home({ onCapture, onReview, focusOnMount }: HomeProps) {
           Review today
         </button>
       )}
+      <button
+        type="button"
+        className="button button-secondary"
+        onClick={onBrowse}
+      >
+        Browse highlights
+      </button>
     </section>
   )
 }

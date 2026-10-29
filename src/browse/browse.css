@@ -1,0 +1,38 @@
+/* Browse highlights. Shares .stack, .step-heading, .chip and .swatch with
+   capture.css, and .field with index.css. */
+
+/* Selects look like the text inputs in .field */
+.field select {
+  width: 100%;
+  min-height: var(--tap-min);
+  padding-inline: var(--space-3);
+  /* 16px minimum: iOS Safari zooms into controls with smaller text */
+  font: inherit;
+  font-size: var(--text-base);
+  color: var(--color-ink);
+  background: var(--color-surface);
+  /* ink-muted, not a border token: a control's edge needs 3:1 contrast */
+  border: var(--border-width) solid var(--color-ink-muted);
+  border-radius: var(--radius-sm);
+}
+
+.filters .form-error {
+  min-height: 0;
+}
+
+.summary-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list-count {
+  text-align: center;
+}
+
+/* Focused by script when "Load more" runs out; not interactive */
+.list-count:focus {
+  outline: none;
+}
