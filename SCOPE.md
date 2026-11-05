@@ -23,7 +23,8 @@ Cut order unchanged if needed: search box, then Sentry, then filters.
 6. Search: text search + filters for book, color, code.
 7. Baseline: TypeScript, Zod, retries, error handling, loading/error/empty
    states, Sentry, tests (scheduler + parser), GitHub Actions CI.
-8. Eval: 20 hand-labeled pages, accuracy measured per field.
+8. Eval: 20 hand-labeled pages (5 dev pages from the kill test + 15 test
+   pages from Napoleon), accuracy measured per field.
 9. Design system locked before any CSS. Light theme. One signature animation.
 
 ## Deferred (v0.2+)
