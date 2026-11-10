@@ -7,7 +7,7 @@ Use-only period: after DONE (Sat Nov 7), bug fixes only, no new features or proj
 Soccer predictor: parked until reprise is DONE (Nov 7)
 Amended Oct 11: live date moved to Thu Oct 15 to keep all features (no cuts).
 DONE date unchanged: Tue Oct 20.
-Amended Oct 27: DONE is Sat Nov 7 (resume Nov 8, applications start Nov 9).
+Amended Oct 27: DONE is Nov (resume Nov , applications start Nov ).
 Cut order unchanged if needed: search box, then Sentry, then filters.
 
 ## In v0.1

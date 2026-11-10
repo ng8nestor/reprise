@@ -4,7 +4,9 @@ import { LoginForm } from './auth/LoginForm.tsx'
 import { useAuth } from './auth/useAuth.ts'
 import { BrowseHighlights } from './browse/BrowseHighlights.tsx'
 import { CaptureFlow } from './capture/CaptureFlow.tsx'
+import { SentryTestNotice } from './errors/SentryTestNotice.tsx'
 import { Home } from './Home.tsx'
+import { useSentryUser } from './lib/useSentryUser.ts'
 import { DailyReview } from './review/DailyReview.tsx'
 
 type Screen = 'home' | 'returnedHome' | 'capture' | 'review' | 'browse'
@@ -17,6 +19,7 @@ function SignedIn() {
 
   return (
     <main>
+      <SentryTestNotice />
       {screen === 'capture' && <CaptureFlow onExit={toHome} />}
       {screen === 'review' && <DailyReview onExit={toHome} />}
       {screen === 'browse' && (
@@ -39,6 +42,7 @@ function SignedIn() {
 
 function App() {
   const auth = useAuth()
+  useSentryUser(auth.status === 'signedIn' ? auth.session.user.id : null)
 
   // The title renders in every state at the same spot, so loading is just
   // the title on a calm page and the rest appears below it without a jump.

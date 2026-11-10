@@ -10,7 +10,13 @@ interface ImportMetaEnv {
   // Undefined when missing from .env; src/lib/env.ts checks at startup.
   readonly VITE_SUPABASE_URL: string | undefined
   readonly VITE_SUPABASE_PUBLISHABLE_KEY: string | undefined
+  // Undefined or empty keeps Sentry off (local dev, CI).
+  readonly VITE_SENTRY_DSN: string | undefined
 }
+
+// Vercel's VERCEL_ENV (production | preview | development) at build time,
+// or null outside Vercel. Replaced by `define` in vite.config.ts.
+declare const __VERCEL_ENV__: string | null
 
 interface ImportMeta {
   readonly env: ImportMetaEnv

@@ -1,0 +1,17 @@
+/* Crash screen: one calm card, one action */
+
+.error-fallback {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.error-fallback-title {
+  margin: 0;
+  font-size: var(--text-quote);
+  font-weight: var(--weight-strong);
+  line-height: var(--leading-tight);
+}
+
+.error-fallback > .button {
+  width: 100%;
+}
