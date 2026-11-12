@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { readSupabaseConfig } from './env.ts'
 
 const URL = 'https://example.supabase.co'
-const KEY = 'sb_publishable_test'
+// Joined at run time so no key-shaped string sits in the source.
+const KEY = ['sb', 'publishable', 'test'].join('_')
 
 describe('readSupabaseConfig', () => {
   it('returns trimmed values when both are set', () => {

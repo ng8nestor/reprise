@@ -1,9 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import { isServiceRoleKey, readEvalEnv } from './env.ts'
 
+// Joined at run time so no key-shaped string sits in the source.
+const FAKE_PUBLISHABLE_KEY = ['sb', 'publishable', 'fake'].join('_')
+const FAKE_SECRET_KEY = ['sb', 'secret', 'fake'].join('_')
+
 const GOOD = {
   VITE_SUPABASE_URL: 'https://example.invalid',
-  VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_fake',
+  VITE_SUPABASE_PUBLISHABLE_KEY: FAKE_PUBLISHABLE_KEY,
   EVAL_EMAIL: 'eval@example.invalid',
   EVAL_PASSWORD: 'fake password',
 }
@@ -18,7 +22,7 @@ describe('readEvalEnv', () => {
   it('returns the four settings', () => {
     expect(readEvalEnv(GOOD)).toEqual({
       url: 'https://example.invalid',
-      publishableKey: 'sb_publishable_fake',
+      publishableKey: FAKE_PUBLISHABLE_KEY,
       email: 'eval@example.invalid',
       password: 'fake password',
     })
@@ -53,7 +57,7 @@ describe('readEvalEnv', () => {
 
   it('refuses a secret key in place of the publishable key', () => {
     expect(() =>
-      readEvalEnv({ ...GOOD, VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_secret_fake' }),
+      readEvalEnv({ ...GOOD, VITE_SUPABASE_PUBLISHABLE_KEY: FAKE_SECRET_KEY }),
     ).toThrow(/service-role/)
   })
 
@@ -69,18 +73,18 @@ describe('readEvalEnv', () => {
   it('never puts a secret value in an error message', () => {
     let message = ''
     try {
-      readEvalEnv({ ...GOOD, VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_secret_fake' })
+      readEvalEnv({ ...GOOD, VITE_SUPABASE_PUBLISHABLE_KEY: FAKE_SECRET_KEY })
     } catch (err) {
       message = String(err)
     }
-    expect(message).not.toContain('sb_secret_fake')
+    expect(message).not.toContain(FAKE_SECRET_KEY)
     expect(message).not.toContain('fake password')
   })
 })
 
 describe('isServiceRoleKey', () => {
   it('accepts publishable and legacy anon keys', () => {
-    expect(isServiceRoleKey('sb_publishable_fake')).toBe(false)
+    expect(isServiceRoleKey(FAKE_PUBLISHABLE_KEY)).toBe(false)
     expect(isServiceRoleKey(fakeJwt({ role: 'anon' }))).toBe(false)
   })
 

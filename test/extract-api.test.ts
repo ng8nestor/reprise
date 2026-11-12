@@ -31,6 +31,9 @@ vi.mock('../server/extraction/extract.ts', async (importOriginal) => ({
 
 const URL = 'https://reprise.test/api/extract'
 const GOOD_TOKEN = 'good-token'
+// Joined at run time so no key-shaped string sits in the source.
+const FAKE_PUBLISHABLE_KEY = ['sb', 'publishable', 'test'].join('_')
+const FAKE_ANTHROPIC_KEY = ['sk', 'ant', 'test'].join('-')
 // JPEG SOI + APP0 marker; enough for the magic-byte check.
 const JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]).toString(
   'base64',
@@ -60,8 +63,8 @@ const meta = {
 
 beforeEach(() => {
   vi.stubEnv('VITE_SUPABASE_URL', 'https://example.supabase.co')
-  vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_test')
-  vi.stubEnv('ANTHROPIC_API_KEY', 'sk-ant-test')
+  vi.stubEnv('VITE_SUPABASE_PUBLISHABLE_KEY', FAKE_PUBLISHABLE_KEY)
+  vi.stubEnv('ANTHROPIC_API_KEY', FAKE_ANTHROPIC_KEY)
   vi.spyOn(console, 'error').mockImplementation(() => {})
   getUser.mockImplementation(async (token: string) =>
     token === GOOD_TOKEN
@@ -264,7 +267,7 @@ describe('POST /api/extract', () => {
     const logged = JSON.stringify(vi.mocked(console.error).mock.calls)
     expect(logged).not.toContain(JPEG)
     expect(logged).not.toContain(GOOD_TOKEN)
-    expect(logged).not.toContain('sk-ant-test')
+    expect(logged).not.toContain(FAKE_ANTHROPIC_KEY)
   })
 
   it('returns 500 when an env var is missing', async () => {

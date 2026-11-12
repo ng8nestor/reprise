@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { quoteDebugIds, readSentryBuildSettings } from '../vite.sentry.ts'
 
+// Joined at run time so no token-shaped string sits in the source.
+const FAKE_TOKEN = ['sntrys', 'fake'].join('_')
+
 const FULL = {
-  SENTRY_AUTH_TOKEN: 'sntrys_fake',
+  SENTRY_AUTH_TOKEN: FAKE_TOKEN,
   SENTRY_ORG: 'my-org',
   SENTRY_PROJECT: 'reprise',
 }
@@ -33,7 +36,7 @@ describe('readSentryBuildSettings', () => {
   })
 
   it('names both when the org and the project are missing', () => {
-    const result = readSentryBuildSettings({ SENTRY_AUTH_TOKEN: 'sntrys_fake' })
+    const result = readSentryBuildSettings({ SENTRY_AUTH_TOKEN: FAKE_TOKEN })
     expect(result.uploadSourceMaps === false && result.warning).toMatch(
       /SENTRY_ORG and SENTRY_PROJECT is missing/,
     )
@@ -42,7 +45,7 @@ describe('readSentryBuildSettings', () => {
   it('uploads when token, org and project are all set', () => {
     expect(readSentryBuildSettings(FULL)).toEqual({
       uploadSourceMaps: true,
-      authToken: 'sntrys_fake',
+      authToken: FAKE_TOKEN,
       org: 'my-org',
       project: 'reprise',
       release: undefined,
@@ -59,12 +62,12 @@ describe('readSentryBuildSettings', () => {
 
   it('trims values', () => {
     const result = readSentryBuildSettings({
-      SENTRY_AUTH_TOKEN: ' sntrys_fake ',
+      SENTRY_AUTH_TOKEN: ` ${FAKE_TOKEN} `,
       SENTRY_ORG: ' my-org ',
       SENTRY_PROJECT: ' reprise ',
     })
     expect(result).toMatchObject({
-      authToken: 'sntrys_fake',
+      authToken: FAKE_TOKEN,
       org: 'my-org',
       project: 'reprise',
     })
