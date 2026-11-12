@@ -28,3 +28,6 @@
 | Sentry breadcrumbs     | Fetch and navigation only, query strings cut     | Console and click breadcrumbs too                    | Debugging needs click trails and I can scrub them safely   |
 | Source map upload      | Failure warns in the build log, deploy goes on   | Fail the build                                       | A bad token goes unnoticed and traces stay minified        |
 | Source maps on the web | Never published; hidden maps only when uploading | Publish .map files                                   | Never                                                      |
+| Bundle leak check      | Fails the build: secrets, commit message, env    | Warn in the build log, like the source map upload    | Never; tune its length limits if it flags harmless code    |
+| Debug-ID quotes        | Workaround: backtick debug IDs rewritten to "…"  | Another minifier (new dependency), upload elsewhere  | The Sentry CLI recognizes backtick-quoted debug IDs        |
+| Env vars in browser    | Each read by name: import.meta.env.VITE_X        | Pass the whole import.meta.env (inlines all VITE_*)  | Never                                                      |

@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
+import { syncSentryUser } from '../lib/sentryUser.ts'
 import { supabase } from '../lib/supabase.ts'
 
 export type AuthState =
@@ -11,6 +12,17 @@ function fromSession(session: Session | null): AuthState {
   return session ? { status: 'signedIn', session } : { status: 'signedOut' }
 }
 
+// Every auth change goes through here. The Sentry user is set first, so it is
+// in place before React renders anything for the new state (see
+// sentryUser.ts for why an effect was too late).
+export function applySession(
+  session: Session | null,
+  setState: (state: AuthState) => void,
+): void {
+  syncSentryUser(session)
+  setState(fromSession(session))
+}
+
 export function useAuth(): AuthState {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
 
@@ -19,17 +31,17 @@ export function useAuth(): AuthState {
 
     supabase.auth.getSession().then(
       ({ data }) => {
-        if (active) setState(fromSession(data.session))
+        if (active) applySession(data.session, setState)
       },
       () => {
-        if (active) setState({ status: 'signedOut' })
+        if (active) applySession(null, setState)
       },
     )
 
     // Only sets state here: awaiting other supabase calls inside this
     // callback can deadlock the auth client.
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (active) setState(fromSession(session))
+      if (active) applySession(session, setState)
     })
 
     return () => {

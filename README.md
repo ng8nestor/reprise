@@ -64,6 +64,8 @@ flowchart LR
     Storage["Storage<br/>private photo bucket"]
   end
 
+  Sentry["Sentry<br/>errors only"]
+
   subgraph GitHub["GitHub Actions"]
     CI["CI on push and PR"]
     KeepAlive["Daily keep-alive"]
@@ -77,9 +79,11 @@ flowchart LR
   Phone -->|"queries and save_page, as the user"| DB
   Phone -->|"photo upload"| Storage
   KeepAlive -->|"keep_alive()"| DB
+  Phone -->|"errors, scrubbed to the user id"| Sentry
+  Static -.->|"source maps, uploaded at build"| Sentry
 ```
 
-The browser is a React single-page app. It talks to Supabase directly with the signed-in user's session, so Row Level Security decides what each request can see or change. The one thing the browser cannot do is call Claude: that happens in `api/extract.ts`, a Vercel function that checks the caller's Supabase token, validates the image, runs the extraction, and returns parsed highlights. The function never touches the database. A scheduled workflow pings the free-tier Supabase project once a day so it is not paused for inactivity, and CI checks every push.
+The browser is a React single-page app. It talks to Supabase directly with the signed-in user's session, so Row Level Security decides what each request can see or change. The one thing the browser cannot do is call Claude: that happens in `api/extract.ts`, a Vercel function that checks the caller's Supabase token, validates the image, runs the extraction, and returns parsed highlights. The function never touches the database. Errors in the browser go to Sentry, scrubbed down to what happened and the signed-in user's id. Source maps are uploaded to Sentry during the Vercel build and never published, so stack traces point at the TypeScript source. A scheduled workflow pings the free-tier Supabase project once a day so it is not paused for inactivity, and CI checks every push.
 
 ## Key engineering decisions
 
@@ -91,6 +95,7 @@ The full table, with the alternative considered and when to revisit each, is in 
 - **Saving a page is atomic.** A `save_page` database function inserts the page and all of its highlights in one transaction. It runs as `security invoker`, so the same grants and policies apply as for direct inserts. If the database rejects the save, the app removes the uploaded photo (best effort).
 - **A request time budget with the arithmetic written down and tested.** Auth is capped at 10 s and each Claude call at 130 s, with at most two attempts, for a worst case of 270 s, under Vercel's 300 s limit. The phone gets a JSON error instead of a platform timeout. SDK retries are off because the SDK sleeps for as long as `retry-after` says, which would make the worst case unbounded.
 - **Deterministic fixes live in tested code, not the prompt.** Line-break hyphens are joined by a small normalizer after parsing. The prompt asks for it too, but during the kill test the model reported joining hyphens that it had not joined. Replies are parsed as text and validated with Zod; if one fails, the model is shown its own bad reply and the error and gets one retry.
+- **Error tracking that knows who, not what.** Browser errors go to Sentry with the SDK's data collection switched off and an allow-list scrub on every event: the error, its stack, the browser, and the user's id survive; email, highlight and book text, photos, request bodies, and query strings do not. There is no tracing and no session replay. The user id is set the moment a session arrives, before the signed-in screens render, so errors from the first render carry it too. Source maps are uploaded at build time and deleted from the output, and a build check fails the deploy if a served file contains a secret key, the commit message, or any non-public environment value.
 - **The eval is built from human-corrected output.** Every saved page keeps the model's raw reply next to the highlights I corrected, so accuracy can be measured later without new model calls or a separate labeling pass. The script signs in with the publishable key, so RLS applies, and its output contains counts only, never book text.
 
 ## Measuring the AI
@@ -126,13 +131,14 @@ TODO: paste the results of `npm run eval` here (date, prompt version, number of 
 
 ## Testing and CI
 
-There are 324 tests in 26 files, run with Vitest. They cover:
+There are 391 tests in 35 files, run with Vitest. They cover:
 
 - the Leitner scheduler, including date handling in the phone's time zone;
 - the extraction parser and hyphen normalizer;
 - the `/api/extract` handler: auth, image type and size checks, error mapping, and the time-budget arithmetic;
 - save, review, browse-filter, and error-message logic, written as pure functions;
 - the eval scoring;
+- Sentry: what an event may carry after scrubbing, that the user id is set before the signed-in screens render, the build-time upload settings, the debug-ID fix that keeps uploaded source maps lined up, and the bundle leak check;
 - WCAG 4.5:1 contrast for the text and background color pairs in the design tokens;
 - a check that the database's allowed colors, codes, and symbols match `shared/vocabulary.ts`.
 
@@ -153,7 +159,7 @@ npm install
 cp .env.example .env
 ```
 
-Fill in `.env`: `ANTHROPIC_API_KEY`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_PUBLISHABLE_KEY`. The `EVAL_*` values are only for `npm run eval`.
+Fill in `.env`: `ANTHROPIC_API_KEY`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_PUBLISHABLE_KEY`. The `EVAL_*` values are only for `npm run eval`. Leave `VITE_SENTRY_DSN` empty locally: Sentry stays off, with no network calls.
 
 ```bash
 supabase link --project-ref <your-project-ref>
@@ -165,18 +171,19 @@ The app has no sign-up screen, so create your user in the Supabase dashboard und
 
 `npm run dev` starts Vite only, which does not serve `/api/extract`. Everything except photo extraction works with it. `/api/extract` needs Vercel's runtime, so capture has two options. A Vercel preview deploy works. Running it locally with the Vercel CLI (`vercel dev`) should also work, but I have not tested it.
 
+For Sentry on a deploy, set `VITE_SENTRY_DSN` in Vercel's environment variables. For readable stack traces, also set `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` there; the build then uploads source maps and removes them from the output. They are read from the real environment only, never from `.env`, so a local build never uploads anything. To check it end to end, open `/#sentry-test` while signed in: it sends one test error, and its top frame should read `src/lib/sentryTest.ts`.
+
 Other scripts: `npm test`, `npm run lint`, `npm run format:check`, `npm run extract` (run extraction over images in `eval/pages/`, macOS only), and `npm run eval`.
 
 ## Scope and roadmap
 
 [SCOPE.md](SCOPE.md) is the contract for v0.1, and anything outside it goes to [PARKING_LOT.md](PARKING_LOT.md) instead of into code.
 
-**In v0.1:** single-user email login with RLS on every table; photo capture with extraction, editing, and atomic save; daily review on a Leitner schedule; browsing with book, color, and code filters; unit tests and CI; an accuracy eval.
+**In v0.1:** single-user email login with RLS on every table; photo capture with extraction, editing, and atomic save; daily review on a Leitner schedule; browsing with book, color, and code filters; unit tests and CI; an accuracy eval; Sentry error tracking in the browser, scrubbed to the user id, with source maps.
 
 **Cut:**
 
 - **Text search box.** It was first in the cut order. Browsing by book, color, and code covers narrowing down highlights, and capture, storage, and review were never to be cut.
-- **Sentry.** It was second in the cut order and was never integrated. The extraction function logs its failures, and the app shows loading, error, and empty states.
 
 **v0.2:**
 

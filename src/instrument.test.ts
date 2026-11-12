@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { syncSentryUser } from './lib/sentryUser.ts'
 
 // Runs the real instrument.ts against a fake network and reads what Sentry
 // would have sent. This is the check that the SDK options still do what the
@@ -35,8 +36,13 @@ function sentEvents(fetchMock: ReturnType<typeof vi.fn>): SentEvent[] {
   return events
 }
 
+// One mock for the whole file: the SDK caches the first fetch it sees, so a
+// fresh mock per test would never be called after the first one.
+const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }))
+
 afterEach(async () => {
   await Sentry.close(0)
+  fetchMock.mockClear()
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
   vi.resetModules()
@@ -44,7 +50,6 @@ afterEach(async () => {
 
 describe('instrument.ts', () => {
   it('stays off, with no network traffic, when there is no DSN', async () => {
-    const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('VITE_SENTRY_DSN', '')
     vi.stubGlobal('__VERCEL_ENV__', 'production')
@@ -58,7 +63,6 @@ describe('instrument.ts', () => {
   })
 
   it('sends the error, the environment and the user id, and nothing private', async () => {
-    const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }))
     vi.stubGlobal('fetch', fetchMock)
     vi.stubEnv('VITE_SENTRY_DSN', DSN)
     vi.stubGlobal('__VERCEL_ENV__', 'preview')
@@ -89,5 +93,23 @@ describe('instrument.ts', () => {
     expect(serialized).not.toContain('nature of war')
     expect(serialized).not.toContain('{{auto}}')
     expect(event?.extra).toBeUndefined()
+  })
+
+  it('attaches the user id set at sign-in to every event, through the scrub', async () => {
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubEnv('VITE_SENTRY_DSN', DSN)
+    vi.stubGlobal('__VERCEL_ENV__', 'production')
+
+    await import('./instrument.ts')
+    // What useAuth does when a session arrives (a full Session has more).
+    syncSentryUser({ user: { id: USER_ID } })
+    Sentry.captureException(new Error('first render'))
+    Sentry.captureMessage('later', 'error')
+    await Sentry.flush(2000)
+
+    const events = sentEvents(fetchMock)
+    expect(events).toHaveLength(2)
+    for (const event of events) expect(event.user).toEqual({ id: USER_ID })
+    syncSentryUser(null)
   })
 })
