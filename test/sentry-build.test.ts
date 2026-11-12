@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readSentryBuildSettings } from '../vite.sentry.ts'
+import { quoteDebugIds, readSentryBuildSettings } from '../vite.sentry.ts'
 
 const FULL = {
   SENTRY_AUTH_TOKEN: 'sntrys_fake',
@@ -68,5 +68,51 @@ describe('readSentryBuildSettings', () => {
       org: 'my-org',
       project: 'reprise',
     })
+  })
+})
+
+const DEBUG_ID = '115757a5-ec14-46a2-b207-ac382172352a'
+
+// Copied from the Sentry CLI (npm package `sentry`, 0.49.0), which decides
+// with it whether a file already has a debug ID snippet. When it finds none
+// it adds one to the uploaded copy and shifts that copy's source map by a
+// line, which the served file never gets.
+const CLI_SNIPPET_PATTERN = new RegExp(
+  `(?:\\.\\s*_sentryDebugIds|\\[\\s*["']_sentryDebugIds["']\\s*\\])\\s*\\[\\s*[$\\w]+\\s*\\]\\s*=\\s*(["'])(${DEBUG_ID})\\1`,
+)
+
+// The snippet as Vite 8's minifier emits it.
+const MINIFIED =
+  `var t=new e.Error().stack;t&&(e._sentryDebugIds=e._sentryDebugIds||{},` +
+  `e._sentryDebugIds[t]=\`${DEBUG_ID}\`,` +
+  `e._sentryDebugIdIdentifier=\`sentry-dbid-${DEBUG_ID}\`)`
+
+describe('quoteDebugIds', () => {
+  it('reproduces the bug: the CLI does not see the minified snippet', () => {
+    expect(CLI_SNIPPET_PATTERN.test(MINIFIED)).toBe(false)
+  })
+
+  it('makes the snippet one the CLI recognizes', () => {
+    expect(CLI_SNIPPET_PATTERN.test(quoteDebugIds(MINIFIED))).toBe(true)
+  })
+
+  it('keeps every character where it was, so the source map stays exact', () => {
+    const quoted = quoteDebugIds(MINIFIED)
+    expect(quoted).toHaveLength(MINIFIED.length)
+    expect(quoted.split('\n')).toHaveLength(MINIFIED.split('\n').length)
+    expect(quoted).toContain(`e._sentryDebugIds[t]="${DEBUG_ID}"`)
+    expect(quoted).toContain(
+      `_sentryDebugIdIdentifier="sentry-dbid-${DEBUG_ID}"`,
+    )
+  })
+
+  it('leaves other template literals alone', () => {
+    const code = `a=\`${DEBUG_ID}\`;e._sentryDebugIds=\`x\``
+    expect(quoteDebugIds(code)).toBe(code)
+  })
+
+  it('leaves an already quoted snippet alone', () => {
+    const code = `e._sentryDebugIds[n]="${DEBUG_ID}"`
+    expect(quoteDebugIds(code)).toBe(code)
   })
 })

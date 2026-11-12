@@ -20,5 +20,10 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "vite.sentry.ts", "test"]
+  "include": [
+    "vite.config.ts",
+    "vite.sentry.ts",
+    "vite.bundle-check.ts",
+    "test"
+  ]
 }

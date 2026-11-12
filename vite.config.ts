@@ -1,7 +1,11 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
-import { readSentryBuildSettings } from './vite.sentry.ts'
+import { bundleCheckPlugin } from './vite.bundle-check.ts'
+import {
+  readSentryBuildSettings,
+  sentryDebugIdQuotesPlugin,
+} from './vite.sentry.ts'
 
 const sentry = readSentryBuildSettings(process.env)
 if (!sentry.uploadSourceMaps && sentry.warning) console.warn(sentry.warning)
@@ -10,6 +14,13 @@ if (!sentry.uploadSourceMaps && sentry.warning) console.warn(sentry.warning)
 export default defineConfig({
   plugins: [
     react(),
+    // Fails the build if a served file carries a secret, the commit message,
+    // or any non-public environment value. Before the Sentry upload, so a
+    // leaking build uploads nothing either.
+    bundleCheckPlugin(process.env),
+    // Keeps the uploaded source maps lined up with the served files; see
+    // vite.sentry.ts for the full story.
+    sentry.uploadSourceMaps && sentryDebugIdQuotesPlugin(),
     // Last, so it sees the finished bundle. Present only when a build has
     // everything it needs to upload; every other build has no source maps.
     sentry.uploadSourceMaps &&

@@ -22,7 +22,7 @@ if (config) {
     // defaults collect MORE (cookies, headers, bodies, query strings), so
     // every category is switched off here. This is the "sendDefaultPii:
     // false" of older versions, spelled out. The user id is still attached
-    // by hand (useSentryUser).
+    // by hand (sentryUser.ts).
     dataCollection: {
       userInfo: false,
       cookies: false,
