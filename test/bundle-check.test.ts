@@ -7,10 +7,23 @@ const COMMIT_MESSAGE =
 
 const PUBLIC_ENV = {
   VITE_SUPABASE_URL: 'https://abcdefghijklmnop.supabase.co',
-  VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_0123456789abcdef',
+  VITE_SUPABASE_PUBLISHABLE_KEY: ['sb', 'publishable', 'FAKE', 'KEY'].join('_'),
   VITE_SENTRY_DSN: 'https://abc123@o1.ingest.sentry.io/4500000000000001',
   VERCEL_GIT_COMMIT_SHA: 'fe2ccbc4267e7c88dbc209323bdcbfa08d74ef63',
 }
+
+// Fake secrets are joined from parts at run time, so no real-looking token
+// sits in the source for secret scanners to flag. The joined values still
+// start with the prefixes the leak check looks for.
+const FAKE_SENTRY_TOKEN = ['sntrys', 'FAKE', 'TOKEN'].join('_')
+const FAKE_ANTHROPIC_KEY = ['sk', 'ant', 'FAKE', 'KEY'].join('-')
+const FAKE_WEBHOOK_SECRET = [
+  'whsec',
+  'FAKE',
+  'webhook',
+  'signing',
+  'value',
+].join('_')
 
 function js(content: string) {
   return [{ file: 'assets/index-abc.js', content }]
@@ -23,7 +36,7 @@ describe('findBundleLeaks', () => {
   })
 
   it('catches a Sentry auth token by its prefix, set or not', () => {
-    expect(findBundleLeaks(js('x="sntrys_eyJpYXQiOjE3"'), {})).toEqual([
+    expect(findBundleLeaks(js(`x="${FAKE_SENTRY_TOKEN}"`), {})).toEqual([
       {
         file: 'assets/index-abc.js',
         reason: 'contains "sntrys_" (a secret key)',
@@ -32,7 +45,7 @@ describe('findBundleLeaks', () => {
   })
 
   it('catches an Anthropic key by its prefix', () => {
-    const leaks = findBundleLeaks(js('k=`sk-ant-api03-xyz`'), {})
+    const leaks = findBundleLeaks(js(`k=\`${FAKE_ANTHROPIC_KEY}\``), {})
     expect(leaks.map((leak) => leak.reason)).toEqual([
       'contains "sk-ant" (a secret key)',
     ])
@@ -65,7 +78,7 @@ describe('findBundleLeaks', () => {
   })
 
   it('catches any other environment value, naming the variable but not the value', () => {
-    const secret = 'whsec_0123456789abcdefghijklmnop'
+    const secret = FAKE_WEBHOOK_SECRET
     const leaks = findBundleLeaks(js(`a="${secret}"`), {
       ...PUBLIC_ENV,
       VITE_WEBHOOK_SECRET: secret,
