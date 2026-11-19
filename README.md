@@ -39,9 +39,14 @@ Two highlighter colors. What each means depends on the kind of book, and the app
 
 Ten pen codes in the margin, each belonging to exactly one highlight: `H`, `A`, `C`, `RCT`, `Obs`, `Meta`, `n=`, `M`, `anec`, `L`.
 
-TODO: add a one-line meaning for each code. The repository defines the codes but not what they stand for.
+Codes are conventions of the book, not of the app: the same letter can mean different things in different books. Two examples:
 
-Five pen symbols: ✓ try, ? doubt, ! surprise, ✗ disagree, → connects.
+- **Protocols** (science): `H` human study, `A` animal study, `C` cell study (in vitro), `M` mechanism, `RCT` randomized controlled trial, `Obs` observational study, `Meta` meta-analysis, `n=` sample size, `anec` anecdote.
+- **Napoleon: A Life** (biography): `L` leadership lesson. Pink marks Napoleon's own decisions and words, yellow marks turning points.
+
+Symbols in both: ✓ try, ? doubt, ! surprising, ✗ disagree, → connects to.
+
+v0.1 uses one fixed vocabulary for every book (`shared/vocabulary.ts`), so all ten codes are valid on any page. Custom codes per book are planned for v0.2.
 
 Anything else on the page is ignored. The vocabulary lives in one file, `shared/vocabulary.ts`. The Zod schemas and the UI import it, and a test checks that the database's check constraints match it.
 
@@ -188,6 +193,6 @@ Other scripts: `npm test`, `npm run lint`, `npm run format:check`, `npm run extr
 **v0.2:**
 
 - Handwritten margin notes, beyond the fixed codes.
-- A custom vocabulary per user, so another reader can use their own colors and codes.
+- Custom codes defined per book, and later per reader, so another reader can use their own colors and codes.
 
 Other deferred items, such as semantic search, linking highlights with →, and page-number extraction, are listed in SCOPE.md.
