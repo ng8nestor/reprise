@@ -10,3 +10,5 @@ Ideas go here, not into code.
 - Add a book by photographing its front cover (title and author filled in); manual entry stays as a fallback
 - Extract the page number from the photo instead of typing it (DECISIONS revisit trigger met: typing is friction in daily use)
 - Batch capture: take or pick many page photos at once, extract them in the background, and review each when ready instead of one at a time
+- Prompt v4: pass the typed page number so the model ignores the facing page (eval: 3 of 4 false positives were facing-page bleed). Measure on the same stored photos.
+- Capture pen underlines as a third mark type (pen-only underlines are ignored in v0.1 by design)

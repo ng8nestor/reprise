@@ -119,9 +119,24 @@ Declared a pass, and the prompt was frozen at v3. The remaining issues at v3 wer
 
 ### Accuracy
 
-TODO: paste the results of `npm run eval` here (date, prompt version, number of pages, and per-field figures). The script writes them to `eval/RESULTS.md`, which is not committed.
+Run on 2026-11-19 with model `claude-sonnet-5-5` and prompt `extract-v3`. The eval set is 16 pages of _Napoleon: A Life_ (pp. 48–63) with 42 labeled highlights. The model returned 45, and 41 of them matched a label. None of these pages were used while tuning the prompt.
 
-**Method.** The eval set is 15 pages of one biography that were not used while tuning the prompt. For each saved page, `npm run eval` compares what the model returned (`pages.raw_extraction`) with the highlights as I corrected them in the review screen, which count as ground truth. Highlights are paired one-to-one by text similarity (at least 0.6 on a normalized edit-distance measure, best pairs first). It then reports:
+| Metric                                   | Result                        |
+| ---------------------------------------- | ----------------------------- |
+| Highlight detection: recall              | 97.6% (41/42)                 |
+| Highlight detection: precision           | 91.1% (41/45)                 |
+| Highlight detection: F1                  | 94.3%                         |
+| Color, on matched highlights             | 100% (41/41)                  |
+| Exact text, on matched highlights        | 100% (41/41)                  |
+| Codes and symbols, on matched highlights | 5 of 6 (precision and recall) |
+
+**Where the errors are.** There are four extra highlights and one miss.
+
+- Three of the four extras are text from the facing page that was in the photo (p. 60 and p. 63). The model read a page that was not the one I was capturing.
+- The fourth is a single highlight that came back with only half of its text (p. 48). That is below the 0.6 match threshold, so it counts twice: once as a missed label and once as an extra highlight. This is the only miss.
+- The code and symbol errors are on p. 56: one extra mark and one missing mark.
+
+**Method.** For each saved page, `npm run eval` compares what the model returned (`pages.raw_extraction`) with the highlights as I corrected them in the review screen, which count as ground truth. Highlights are paired one-to-one by text similarity (at least 0.6 on a normalized edit-distance measure, best pairs first). It then reports:
 
 - detection: precision, recall, and F1 for finding highlights;
 - color accuracy, exact-text rate, and mean text similarity, over matched highlights;
@@ -129,10 +144,12 @@ TODO: paste the results of `npm run eval` here (date, prompt version, number of 
 
 **Limits.**
 
-- One book, and a biography. The results say little about nonfiction pages, where the pink and yellow roles and the codes differ.
-- Anchoring bias. The ground truth is the model's output after I edited it. A mistake I didn't notice during review counts as correct, so every figure is an upper bound on true accuracy, not an estimate of it.
-- Small sample, and results vary from run to run (the kill test showed this), so small differences between prompt versions are noise.
+- One book, and a biography. The results say little about nonfiction pages, where the pink and yellow roles and the codes differ. One page of this book (p. 3) was in the five-page kill-test set, so the prompt has seen the book, but not any of the pages scored here.
+- Small sample: 42 highlights, and only 6 codes and symbols. Results vary from run to run (the kill test showed this), so small differences between prompt versions are noise.
+- Anchoring bias. The ground truth is the model's output after I edited it. A mistake I didn't notice during review counts as correct, so every figure is a ceiling on true accuracy, not an estimate of it. To limit this, I checked each page against the book while reviewing it.
 - The match threshold is a judgment call. It is documented in `scripts/eval/metrics.ts`, and very short highlights can be paired wrongly.
+
+**Next step.** Prompt v4 will pass the page number I type to the model so it can ignore the facing page. I will measure it on the same stored photos, so the comparison with v3 changes only the prompt.
 
 ## Testing and CI
 
